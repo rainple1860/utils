@@ -193,6 +193,96 @@ public class FileUtils {
     }
 
     /**
+     * 统计文件字符数量
+     * @param fileInputStream 文件
+     * @param charsetName 字符集
+     * @return 数量
+     */
+    public static long getTotalChar(FileInputStream fileInputStream,String charsetName) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(1024 * 1024);
+        long count = 0;
+        try {
+            while (fileInputStream.getChannel().read(byteBuffer) > 0) {
+                byteBuffer.flip();
+                CharBuffer charBuffer = Charset.forName(charsetName).decode(byteBuffer);
+                count += charBuffer.length();
+                byteBuffer.clear();
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    public static long getTotalChar(FileInputStream fileInputStream) {
+        return getTotalChar(fileInputStream,"utf-8");
+    }
+
+    public static long getTotalChar(File file,String charsetName) {
+        try {
+            return getTotalChar(new FileInputStream(file),charsetName);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static long getTotalChar(File file) {
+        return getTotalChar(file,"utf-8");
+    }
+
+    public static long getTotalChar(String path,String charsetName) {
+        try {
+            return getTotalChar(new FileInputStream(path),charsetName);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static Long getEnglishWords(FileInputStream fileInputStream,String charsetName) {
+        if (charsetName == null || "".equals(charsetName))
+            charsetName = "utf-8";
+        Long count = 0L;
+        try {
+            List<Map.Entry<String, Long>> list = countEnglishWord(fileInputStream, charsetName);
+            if (list == null || list.size() == 0) return 0L;
+            for (Map.Entry<String, Long> entry : list) {
+                count += entry.getValue();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    public static long getChineseChars(FileInputStream fileInputStream,String charsetName) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+        if (charsetName == null || "".equals(charsetName))
+            charsetName = "utf-8";
+        long count = 0;
+        try {
+            while (fileInputStream.getChannel().read(byteBuffer) > 0) {
+                byteBuffer.flip();
+                CharBuffer charBuffer = Charset.forName(charsetName).decode(byteBuffer);
+                char[] chars = charBuffer.array();
+                for (char c : chars) {
+                    if (isChinese(String.valueOf(c)))
+                        count++;
+                }
+                byteBuffer.clear();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    public static long getTotalChar(String path) {
+        return getTotalChar(path,"utf-8");
+    }
+
+    /**
      * 统计文件字符出现的次数
      * @param path 文件路径
      * @param charSetName 文件编码格式
