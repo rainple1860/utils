@@ -22,12 +22,39 @@ public class ListUtils {
      */
     public static List<List> split(List src,int groupSize,int total) {
         List<List> lists = new ArrayList<>();
+        if (src == null || src.size() == 0) return lists;
+        if (total <= 0) {
+            lists.add(src);
+            return lists;
+        }
+        if (groupSize <= 0) groupSize = 1;
         for (int index = 0;index < total; index += groupSize) {
             if (index + groupSize > total) {
                 lists.add(src.subList(index,total));
             } else {
                 lists.add(src.subList(index,index + groupSize));
             }
+        }
+        return lists;
+    }
+
+    public static List<List> splitWithGroup(List srcList,int group,int total) {
+        List<List> lists = new ArrayList<>();
+        if (srcList == null) return lists;
+        if (total <= 0) {
+            lists.add(srcList);
+            return lists;
+        }
+        if (group <= 0) group = 1;
+        int size = total/group;
+        for (int i = 0,index = 0,m = total % group; i < group; i++,index += size) {
+            if ( i + 1 == group)
+                lists.add(srcList.subList(index,total));
+            else
+                if (m-- > 0) {
+                    lists.add(srcList.subList(index, ++index + size));
+                }else
+                    lists.add(srcList.subList(index, index + size));
         }
         return lists;
     }
